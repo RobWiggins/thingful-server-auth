@@ -32,15 +32,18 @@ describe('Reviews Endpoints', function() {
   afterEach('cleanup', () => helpers.cleanTables(db));
 
   describe('POST /api/reviews', () => {
-    
+    // 
     beforeEach('insert things', () => {
-      
-      helpers.seedThingsTables(
+      return helpers.seedThingsTables(
         db,
         testUsers,
         testThings
       );
     });
+
+    // beforeEach('insert things', () => 
+    // db.into('thingful_users').insert(testUsers)
+    // );
 
     it('creates an review, responding with 201 and the new review', function() {
       this.retries(3);

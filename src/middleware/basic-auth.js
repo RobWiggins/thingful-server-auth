@@ -18,7 +18,7 @@ function requireAuth(req, res, next) {
     return res.status(401).json({ error: 'Unauthorized request' });
   }
 
-  req.app.get('db')('blogful_users')
+  req.app.get('db')('thingful_users')
     .where({ user_name: tokenUserName })
     .first()
     .then(user => {

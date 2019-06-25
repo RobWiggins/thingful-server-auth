@@ -36,8 +36,8 @@ describe('Things Endpoints', function() {
 
     context('Given there are things in the database', () => {
       beforeEach('insert things', () => {
-        db.into('thingful_users').insert(testUsers);
-        helpers.seedThingsTables(
+        // db.into()... where to put???? ^^
+        return helpers.seedThingsTables(
           db,
           testUsers,
           testThings,
@@ -110,6 +110,14 @@ describe('Things Endpoints', function() {
         .expect(401, { error: `Unauthorized request` })
     })
 
+    it(`responds 401 'Unauthorized request' when invalid password`, () => {
+      const userInvalidPass = { user_name: testUsers[0].user_name, password: 'wrong' }
+      return supertest(app)
+        .get(`/api/things/1`)
+        .set('Authorization', makeAuthHeader(userInvalidPass))
+        .expect(401, { error: `Unauthorized request` })
+    })
+
     context(`Given no things`, () => {
       it(`responds with 404`, () => {
         const thingId = 123456
@@ -122,8 +130,8 @@ describe('Things Endpoints', function() {
 
     context('Given there are things in the database', () => {
       beforeEach('insert things', () => {
-        db.into('thingful_users').insert(testUsers);
-        helpers.seedThingsTables(
+        // db.into('thingful_users').insert(testUsers);
+        return helpers.seedThingsTables(
           db,
           testUsers,
           testThings,
@@ -193,6 +201,16 @@ describe('Things Endpoints', function() {
     }
 
     context(`Given no things`, () => {
+
+      beforeEach('insert things', () => {
+        // db.into('thingful_users').insert(testUsers);
+        return helpers.seedThingsTables(
+          db,
+          testUsers,
+          [],
+        )}
+      );
+
       it(`responds with 404`, () => {
         const thingId = 123456
         return supertest(app)
@@ -204,8 +222,8 @@ describe('Things Endpoints', function() {
 
     context('Given there are reviews for thing in the database', () => {
       beforeEach('insert things', () => {
-        db.into('thingful_users').insert(testUsers);
-        helpers.seedThingsTables(
+        // db.into('thingful_users').insert(testUsers);
+        return helpers.seedThingsTables(
           db,
           testUsers,
           testThings,
