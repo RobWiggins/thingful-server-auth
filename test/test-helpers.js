@@ -251,14 +251,18 @@ function seedThingsTables(db, users, things, reviews=[]) {
   // use a transaction to group the queries and auto rollback on any failure
   return db.transaction(async trx => {
     await seedUsers(trx, users)
-    await trx.into('thingful_things').insert(things)
+    if (things.length) {
+      await trx.into('thingful_things').insert(things)
+      await trx.raw(
+        `SELECT setval('thingful_things_id_seq', ?)`,
+        [things[things.length - 1].id],
+      )
+    }
     // update the auto sequence to match the forced id values
-    await trx.raw(
-      `SELECT setval('thingful_things_id_seq', ?)`,
-      [things[things.length - 1].id],
-    )
-    // Is this await 1 && async function legal??
-    await reviews.length && db.into('thingful_reviews').insert(reviews)
+    
+    if (reviews.length) {
+      await trx.into('thingful_reviews').insert(reviews)
+    }
   })
 
   // ONLY INSERT REVIEWS IF THERE ARE SOME 
