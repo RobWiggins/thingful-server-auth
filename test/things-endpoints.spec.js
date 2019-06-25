@@ -88,17 +88,11 @@ describe('Things Endpoints', function() {
 
   describe(`GET /api/things/:thing_id`, () => {
 
-
-    function makeAuthHeader(user) {
-      const token = Buffer.from(`${user.user_name}:${user.password}`).toString('base64')
-      return `Basic ${token}`
-    }
-
     it(`responds 401 'Unauthorized request' when no credentials in token`, () => {
       const userNoCreds = { user_name: '', password: '' }
       return supertest(app)
         .get(`/api/things/6435890`)
-        .set('Authorization', makeAuthHeader(userNoCreds))
+        .set('Authorization', helpers.makeAuthHeader(userNoCreds))
         .expect(401, { error: `Unauthorized request` })
     })
 
@@ -106,7 +100,7 @@ describe('Things Endpoints', function() {
       const userInvalidCreds = { user_name: 'user-not', password: 'existy' }
       return supertest(app)
         .get(`/api/things/1`)
-        .set('Authorization', makeAuthHeader(userInvalidCreds))
+        .set('Authorization', helpers.makeAuthHeader(userInvalidCreds))
         .expect(401, { error: `Unauthorized request` })
     })
 
@@ -114,7 +108,7 @@ describe('Things Endpoints', function() {
       const userInvalidPass = { user_name: testUsers[0].user_name, password: 'wrong' }
       return supertest(app)
         .get(`/api/things/1`)
-        .set('Authorization', makeAuthHeader(userInvalidPass))
+        .set('Authorization', helpers.makeAuthHeader(userInvalidPass))
         .expect(401, { error: `Unauthorized request` })
     })
 
@@ -132,7 +126,7 @@ describe('Things Endpoints', function() {
         const thingId = 1
         return supertest(app)
           .get(`/api/things/${thingId}`)
-          .set('Authorization', makeAuthHeader(testUsers[0]))
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
           .expect(404, { error: `Thing doesn't exist` })
       })
     })
@@ -149,11 +143,6 @@ describe('Things Endpoints', function() {
       }
       )
 
-      function makeAuthHeader(user) {
-        const token = Buffer.from(`${user.user_name}:${user.password}`).toString('base64')
-        return `Basic ${token}`
-      }
-
       it('responds with 200 and the specified thing', () => {
         const thingId = 2
         const expectedThing = helpers.makeExpectedThing(
@@ -164,7 +153,7 @@ describe('Things Endpoints', function() {
 
         return supertest(app)
           .get(`/api/things/${thingId}`)
-          .set('Authorization', makeAuthHeader(testUsers[0]))
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
           .expect(200, expectedThing)
       })
     })
@@ -184,15 +173,10 @@ describe('Things Endpoints', function() {
         )
       })
 
-      function makeAuthHeader(user) {
-        const token = Buffer.from(`${user.user_name}:${user.password}`).toString('base64')
-        return `Basic ${token}`
-      }
-
       it('removes XSS attack content', () => {
         return supertest(app)
           .get(`/api/things/${maliciousThing.id}`)
-          .set('Authorization', makeAuthHeader(testUser))
+          .set('Authorization', helpers.makeAuthHeader(testUser))
           .expect(200)
           .expect(res => {
             expect(res.body.title).to.eql(expectedThing.title)
@@ -203,11 +187,6 @@ describe('Things Endpoints', function() {
   })
 
   describe(`GET /api/things/:thing_id/reviews`, () => {
-
-    function makeAuthHeader(user) {
-      const token = Buffer.from(`${user.user_name}:${user.password}`).toString('base64')
-      return `Basic ${token}`
-    }
 
     context(`Given no things`, () => {
 
@@ -224,7 +203,7 @@ describe('Things Endpoints', function() {
         const thingId = 123456
         return supertest(app)
           .get(`/api/things/${thingId}/reviews`)
-          .set('Authorization', makeAuthHeader(testUsers[0]))
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
           .expect(404, { error: `Thing doesn't exist` })
       })
     })
@@ -246,14 +225,9 @@ describe('Things Endpoints', function() {
           testUsers, thingId, testReviews
         )
 
-        function makeAuthHeader(user) {
-          const token = Buffer.from(`${user.user_name}:${user.password}`).toString('base64')
-          return `Basic ${token}`
-        }
-
         return supertest(app)
           .get(`/api/things/${thingId}/reviews`)
-          .set('Authorization', makeAuthHeader(testUsers[0]))
+          .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
           .expect(200, expectedReviews)
       })
     })
